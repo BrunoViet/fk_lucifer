@@ -200,6 +200,33 @@
   font-size: 1.1rem;
 }
 
+.rulesSection {
+  position: relative;
+  width: 100%;
+}
+
+.rulesPanelContainer {
+  position: relative;
+}
+
+.rulesOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rulesOverlayInner {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  border-radius: 1.5rem;
+  color: white;
+  padding: 2rem;
+  max-width: 600px;
+  width: 90%;
+}
+
 /* Faction Goods Section */
 .factionGoodsSection {
   margin: 2rem 0;
