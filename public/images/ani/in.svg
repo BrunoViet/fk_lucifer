@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_图层_2" data-name="图层 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 486.1 532">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #e5a74c;
+        stroke-miterlimit: 10;
+        stroke-width: 2px;
+      }
+
+      .cls-2 {
+        filter: url(#outer-glow-1);
+      }
+    </style>
+    <filter id="outer-glow-1" x="-12.42" y="-12.7" width="511" height="557" filterUnits="userSpaceOnUse">
+      <feOffset dx="0" dy="0"/>
+      <feGaussianBlur result="blur" stdDeviation="4"/>
+      <feFlood flood-color="#e2a65d" flood-opacity="1"/>
+      <feComposite in2="blur" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="assets">
+    <g class="cls-2">
+      <path class="cls-1" d="M375.58,531H110.52c-60.49,0-109.52-49.04-109.52-109.52V110.52C1,50.04,50.04,1,110.52,1h265.05c60.49,0,109.52,39.08,109.52,154.96v221.88c0,112.29-49.04,153.16-109.52,153.16Z"/>
+    </g>
+  </g>
+</svg>

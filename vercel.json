@@ -1,0 +1,14 @@
+{
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
+        }
+    ],
+    "crons": [
+        {
+            "path": "/api/x/tweets?tweetId=1349129669258448897",
+            "schedule": "0 0 * * *"
+        }
+    ]
+}

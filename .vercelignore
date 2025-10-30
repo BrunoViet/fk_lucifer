@@ -1,0 +1,10 @@
+node_modules
+build
+dist
+.git
+.trae
+.log
+package-lock.json
+*.log
+.env*
+.DS_Store

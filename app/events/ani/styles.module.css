@@ -1,0 +1,363 @@
+.main {
+  max-width: 1400px;
+  min-height: 100vh;
+  position: relative;
+  background: #0a0a0a;
+  color: white;
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.header {
+  padding: 0;
+  text-align: center;
+  /* background-image: url("/images/ani/star 1.png");
+  background-size: cover;
+  background-repeat: no-repeat; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.container {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  position: relative;
+  z-index: 20;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.titleSection {
+  text-align: center;
+  top: 30px;
+  position: relative;
+  background-image: url("/images/ani/Asset 10.png");
+  background-size: cover;
+  background-position: center -50px;
+  background-repeat: no-repeat;
+  z-index: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.mainTitleImage {
+  /* margin-bottom: 2rem; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+.titleImg {
+  max-width: 100%;
+  height: auto;
+  z-index: 100;
+  display: block;
+}
+
+.subtitle {
+  font-size: 1.5rem;
+  color: #fff;
+  margin: 0;
+  font-weight: 300;
+}
+
+.eventDates {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 12px 0 0 0;
+}
+
+.banner {
+  top: 30px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 90%;
+}
+
+.bannerItem {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.rank {
+  position: absolute;
+  height: 50%;
+  width: auto;
+  left: -10px;
+}
+
+.points {
+  position: absolute;
+  left: 10%;
+  font-size: 4rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Rules Section */
+.rulesSection {
+  margin: 20px 0;
+}
+
+/* New: Rules - structural wrappers */
+.rulesHeaderImage {
+  width: 100%;
+  margin: 0 auto 10px auto;
+}
+
+.rulesPanelContainer {
+  width: 100%;
+  position: relative;
+}
+
+/* Refined: exact insets for text area inside the rules frame */
+.rulesOverlay {
+  position: absolute;
+  top: 21%;
+  left: 8.5%;
+  right: 8.5%;
+  bottom: 12.5%;
+  color: #ffffff;
+  text-align: left;
+  z-index: 10;
+}
+
+.rulesOverlayInner {
+  font-size: clamp(0.7rem, 2.8vw, 1.2rem);
+  line-height: 1.55;
+  padding: 0;
+}
+
+.rulesList {
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.rulesList p {
+  margin: 6px 0;
+  font-size: 16px;
+}
+
+.rulesBox {
+  background: rgba(0, 212, 255, 0.1);
+  border: 2px solid #00d4ff;
+  border-radius: 15px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  margin: 0 20px;
+}
+
+.rulesBox::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(0, 212, 255, 0.05),
+    transparent
+  );
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.rulesContent {
+  position: relative;
+  z-index: 1;
+}
+
+.rulesContent h3 {
+  font-size: 1.8rem;
+  color: #00d4ff;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.rulesText p {
+  margin: 0.5rem 0;
+  color: #ccc;
+  font-size: 1.1rem;
+}
+
+/* Faction Goods Section */
+.factionGoodsSection {
+  margin: 2rem 0;
+  width: 100%;
+}
+
+.sectionHeaderImage {
+  width: 100%;
+}
+
+.fullWidthImg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.goodsGrid {
+  padding: 0 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  margin-top: 2rem;
+  justify-items: center;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.goodsGrid > div:nth-child(odd) {
+  transform: translateY(-20px);
+}
+
+.goodsGrid > div:nth-child(even) {
+  transform: translateY(10px);
+}
+
+/* Terms Section */
+.termsTitle {
+  font-size: clamp(14px, 4.2vw, 22px);
+  font-weight: 700;
+  color: #ffffff;
+  margin: clamp(6px, 2vw, 12px) 0 clamp(8px, 2.4vw, 14px)
+    clamp(18px, 4.8vw, 28px);
+}
+
+.termsContent {
+  background: transparent;
+  border: none;
+  padding: 0;
+  max-width: 980px;
+  margin: 0;
+}
+
+.termsContent ol {
+  list-style: none;
+  counter-reset: item;
+  margin: 0;
+  padding: 0;
+}
+
+.termsContent li {
+  counter-increment: item;
+  margin: clamp(2px, 1.2vw, 8px) 0;
+  padding-left: clamp(18px, 4.8vw, 28px);
+  position: relative;
+  color: #d9d9d9;
+  line-height: 1.45;
+  font-size: clamp(10px, 2.8vw, 14px);
+}
+
+.termsContent li::before {
+  content: counter(item) ".";
+  position: absolute;
+  left: 0;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: clamp(10px, 2.8vw, 14px);
+}
+
+.termsFootnote {
+  margin-top: clamp(8px, 2.2vw, 12px);
+  color: #d9d9d9;
+  font-size: clamp(9px, 2.4vw, 12px);
+  /* align with list indent */
+  margin-left: clamp(18px, 4.8vw, 28px);
+}
+
+.termsDivider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.9);
+  display: block;
+  /* align with list indent */
+  margin: clamp(18px, 4.8vw, 28px);
+  margin-top: clamp(6px, 2vw, 12px);
+  margin-bottom: clamp(6px, 2vw, 12px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .points {
+    font-size: 2.5rem;
+  }
+
+  .rulesOverlay {
+    top: 22%;
+    left: 9%;
+    right: 9%;
+    bottom: 13%;
+  }
+
+  .rulesOverlayInner {
+    font-size: clamp(0.7rem, 3.4vw, 1.05rem);
+  }
+
+  .rulesBox,
+  .factionZoneBox,
+  .pointsShopBox,
+  .termsContent {
+    margin: 10px;
+    padding: 15px;
+  }
+
+  .titleSection {
+    margin-top: 15px;
+    z-index: 1;
+  }
+
+  .titleImg {
+    max-width: 95%;
+    height: auto;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    margin: 10px 0;
+  }
+
+  .eventDates {
+    font-size: 1.5rem;
+    margin: 10px 0;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .points {
+    font-size: 1.5rem;
+  }
+
+  .titleSection {
+    /* padding: 15px 5px; */
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .eventDates {
+    font-size: 1.2rem;
+  }
+}

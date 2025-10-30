@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopify Customer Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .token-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .token-info h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .token-info p {
+            color: #666;
+            word-break: break-all;
+            margin-bottom: 0.5rem;
+        }
+
+        .api-test {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .api-test h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🛍️ Shopify Customer Login</h1>
+
+        <div id="loginForm">
+            <div class="form-group">
+                <label for="shopId">Shop ID:</label>
+                <input type="text" id="shopId" placeholder="例如：your-shop-id" required>
+            </div>
+
+            <div class="form-group">
+                <label for="clientId">Client ID:</label>
+                <input type="text" id="clientId" placeholder="shp_xxxxxx" required>
+            </div>
+
+            <div class="form-group">
+                <label for="redirectUri">Redirect URI:</label>
+                <input type="text" id="redirectUri" placeholder="https://your-domain.com/callback" required>
+            </div>
+
+            <div class="form-group">
+                <label for="scopes">Scopes (空格分隔):</label>
+                <input type="text" id="scopes" placeholder="customer-account-api:read customer-account-api:write"
+                    required>
+            </div>
+
+            <button class="btn" onclick="initiateLogin()">开始登录</button>
+        </div>
+
+        <div id="callbackHandler" class="hidden">
+            <h2>处理回调中...</h2>
+            <div class="status info">
+                正在处理授权码并获取访问令牌...
+            </div>
+        </div>
+
+        <div id="statusDiv"></div>
+
+        <div id="tokenInfo" class="hidden">
+            <div class="token-info">
+                <h3>🎉 登录成功！</h3>
+                <p><strong>Access Token:</strong> <span id="accessToken"></span></p>
+                <p><strong>Refresh Token:</strong> <span id="refreshToken"></span></p>
+                <p><strong>ID Token:</strong> <span id="idToken"></span></p>
+                <p><strong>过期时间:</strong> <span id="expiresIn"></span> 秒</p>
+            </div>
+
+            <div class="api-test">
+                <h3>🧪 测试 API 调用</h3>
+                <button class="btn" onclick="testCustomerAPI()">获取客户信息</button>
+                <div id="apiResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // PKCE 辅助函数
+        function generateRandomString(length) {
+            const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+            return result;
+        }
+
+        async function generateCodeChallenge(verifier) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(verifier);
+            const digest = await window.crypto.subtle.digest('SHA-256', data);
+            const base64 = btoa(String.fromCharCode(...new Uint8Array(digest)));
+            return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+        }
+
+        // 生成状态参数和随机数
+        function generateState() {
+            return generateRandomString(32);
+        }
+
+        function generateNonce() {
+            return generateRandomString(32);
+        }
+
+        // 存储状态到内存中的对象
+        let authState = {};
+
+        // 开始登录流程
+        async function initiateLogin() {
+            const shopId = document.getElementById('shopId').value;
+            const clientId = document.getElementById('clientId').value;
+            const redirectUri = document.getElementById('redirectUri').value;
+            const scopes = document.getElementById('scopes').value;
+
+            if (!shopId || !clientId || !redirectUri || !scopes) {
+                showStatus('请填写所有必填字段', 'error');
+                return;
+            }
+
+            try {
+                // 生成 PKCE 参数
+                const codeVerifier = generateRandomString(128);
+                localStorage.setItem('code-verifier', codeVerifier);
+                const codeChallenge = await generateCodeChallenge(codeVerifier);
+                const state = generateState();
+                const nonce = generateNonce();
+
+                // 存储状态信息
+                authState = {
+                    shopId,
+                    clientId,
+                    redirectUri,
+                    codeVerifier,
+                    state,
+                    nonce
+                };
+
+                // 构建授权URL
+                const authUrl = new URL(`https://shopify.com/authentication/${shopId}/oauth/authorize`);
+                authUrl.searchParams.set('scope', scopes);
+                authUrl.searchParams.set('client_id', clientId);
+                authUrl.searchParams.set('response_type', 'code');
+                authUrl.searchParams.set('redirect_uri', redirectUri);
+                authUrl.searchParams.set('state', state);
+                authUrl.searchParams.set('nonce', nonce);
+                authUrl.searchParams.set('code_challenge', codeChallenge);
+                authUrl.searchParams.set('code_challenge_method', 'S256');
+
+                // 重定向到 Shopify 登录页面
+                window.location.href = authUrl.toString();
+
+            } catch (error) {
+                showStatus(`生成登录参数时出错: ${error.message}`, 'error');
+            }
+        }
+
+        // 处理回调
+        async function handleCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            const error = urlParams.get('error');
+
+            if (error) {
+                showStatus(`登录错误: ${error}`, 'error');
+                return;
+            }
+
+            if (!code) {
+                showStatus('未收到授权码', 'error');
+                return;
+            }
+
+            // 验证状态参数
+            if (state !== authState.state) {
+                showStatus('状态参数不匹配，可能存在CSRF攻击', 'error');
+                return;
+            }
+
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('callbackHandler').classList.remove('hidden');
+
+            try {
+                // 获取访问令牌
+                const tokenResponse = await fetch(`https://shopify.com/authentication/${authState.shopId}/oauth/token`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Origin': window.location.origin,
+                        'User-Agent': navigator.userAgent
+                    },
+                    body: new URLSearchParams({
+                        grant_type: 'authorization_code',
+                        client_id: authState.clientId,
+                        redirect_uri: authState.redirectUri,
+                        code: code,
+                        code_verifier: authState.codeVerifier
+                    })
+                });
+
+                if (!tokenResponse.ok) {
+                    throw new Error(`HTTP ${tokenResponse.status}: ${tokenResponse.statusText}`);
+                }
+
+                const tokenData = await tokenResponse.json();
+
+                if (tokenData.error) {
+                    throw new Error(`Token Error: ${tokenData.error_description || tokenData.error}`);
+                }
+
+                // 存储令牌信息
+                authState.accessToken = tokenData.access_token;
+                authState.refreshToken = tokenData.refresh_token;
+                authState.idToken = tokenData.id_token;
+                authState.expiresIn = tokenData.expires_in;
+
+                // 验证 nonce（如果存在）
+                if (authState.idToken && authState.nonce) {
+                    try {
+                        const idTokenPayload = JSON.parse(atob(authState.idToken.split('.')[1]));
+                        if (idTokenPayload.nonce !== authState.nonce) {
+                            console.warn('Nonce 验证失败');
+                        }
+                    } catch (e) {
+                        console.warn('无法验证 ID Token 中的 nonce:', e);
+                    }
+                }
+
+                document.getElementById('callbackHandler').classList.add('hidden');
+                showTokenInfo();
+                showStatus('登录成功！', 'success');
+
+            } catch (error) {
+                document.getElementById('callbackHandler').classList.add('hidden');
+                showStatus(`获取访问令牌失败: ${error.message}`, 'error');
+                console.error('Token exchange error:', error);
+            }
+        }
+
+        // 显示令牌信息
+        function showTokenInfo() {
+            document.getElementById('accessToken').textContent =
+                authState.accessToken.substring(0, 20) + '...';
+            document.getElementById('refreshToken').textContent =
+                authState.refreshToken ? authState.refreshToken.substring(0, 20) + '...' : 'N/A';
+            document.getElementById('idToken').textContent =
+                authState.idToken ? authState.idToken.substring(0, 20) + '...' : 'N/A';
+            document.getElementById('expiresIn').textContent = authState.expiresIn;
+
+            document.getElementById('tokenInfo').classList.remove('hidden');
+        }
+
+        // 测试 API 调用
+        async function testCustomerAPI() {
+            if (!authState.accessToken) {
+                showStatus('没有访问令牌', 'error');
+                return;
+            }
+
+            try {
+                const query = `
+                    query {
+                        customer {
+                            id
+                            email
+                            firstName
+                            lastName
+                            phone
+                        }
+                    }
+                `;
+
+                const response = await fetch(`https://shopify.com/${authState.shopId}/account/customer/api/2025-07/graphql`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authState.accessToken}`,
+                        'Origin': window.location.origin
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+
+                document.getElementById('apiResult').innerHTML = `
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+
+            } catch (error) {
+                document.getElementById('apiResult').innerHTML = `
+                    <div class="status error">API 调用失败: ${error.message}</div>
+                `;
+            }
+        }
+
+        // 显示状态消息
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusDiv');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        // 页面加载时检查是否是回调
+        window.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('code') || urlParams.has('error')) {
+                handleCallback();
+            }
+        });
+
+        // 刷新令牌函数
+        async function refreshToken() {
+            if (!authState.refreshToken) {
+                showStatus('没有刷新令牌', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://shopify.com/authentication/${authState.shopId}/oauth/token`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Origin': window.location.origin,
+                        'User-Agent': navigator.userAgent
+                    },
+                    body: new URLSearchParams({
+                        grant_type: 'refresh_token',
+                        client_id: authState.clientId,
+                        refresh_token: authState.refreshToken
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const tokenData = await response.json();
+
+                if (tokenData.error) {
+                    throw new Error(`Refresh Error: ${tokenData.error_description || tokenData.error}`);
+                }
+
+                // 更新令牌
+                authState.accessToken = tokenData.access_token;
+                authState.refreshToken = tokenData.refresh_token || authState.refreshToken;
+                authState.expiresIn = tokenData.expires_in;
+
+                showTokenInfo();
+                showStatus('令牌刷新成功！', 'success');
+
+            } catch (error) {
+                showStatus(`刷新令牌失败: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+
+</html>
