@@ -27,15 +27,15 @@ export default function RulesSection() {
         />
 
         {/* Overlay */}
-        <div className="absolute inset-0 flex justify-center items-center px-6 py-10">
-          <div className="bg-black/60 backdrop-blur-md rounded-2xl text-white p-6 md:p-10 max-w-2xl w-full shadow-lg border border-white/10">
-            <h2 className="text-2xl font-semibold text-center mb-6 tracking-wide">
+        <div className="absolute inset-0 flex justify-center items-center px-4 md:px-8 py-8 md:py-12">
+          <div className="bg-transparent text-white p-4 md:p-8 mt-14 lg:p-10 max-w-4xl w-[88%]">
+            <h2 className="text-3xl md:text-4xl font-semibold text-center mb-8 tracking-wide">
               🧾 Event Rules
             </h2>
 
-            <div className="space-y-6 text-base leading-relaxed">
+            <div className="space-y-7 text-lg md:text-xl leading-relaxed">
               <div>
-                <h3 className="font-semibold text-lg mb-1">
+                <h3 className="font-semibold text-xl mb-2">
                   Rule 1: Basic Points 💰
                 </h3>
                 <p>
@@ -51,7 +51,7 @@ export default function RulesSection() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-lg mb-1">
+                <h3 className="font-semibold text-xl mb-2">
                   Rule 2: Character Week Bonus 🔥
                 </h3>
                 <p>
@@ -66,7 +66,7 @@ export default function RulesSection() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-lg mb-1">
+                <h3 className="font-semibold text-xl mb-2">
                   Rule 3: Discount Boost 💥
                 </h3>
                 <p>
@@ -82,7 +82,7 @@ export default function RulesSection() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-lg mb-1">
+                <h3 className="font-semibold text-xl mb-2">
                   Rule 4: Point Redemption 🎁
                 </h3>
                 <p>

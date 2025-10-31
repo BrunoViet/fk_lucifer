@@ -35,6 +35,14 @@ const RankImgs = {
 
 export default function AniHeader() {
   const { data, error, isLoading } = useCharacterPoints();
+  const colors = [
+    "bg-[#c36a6a]",
+    "bg-[#0b5586]",
+    "bg-[#48b9d7]",
+    "bg-[#e6a3be]",
+    "bg-[#c7801b]",
+    "bg-[#8a8a8a]",
+  ];
   return (
     <header className={styles.header}>
       <div className={styles.titleSection}>
@@ -54,32 +62,60 @@ export default function AniHeader() {
         <div className={styles.eventDates}>SEPTEMBER 20 - OCTOBER 26</div>
       </div>
       <div className={styles.banner}>
-        {data
-          ?.sort((a, b) => b.adjusted_net_points - a.adjusted_net_points)
-          .map((b, index) => (
-            <div key={b.character_name} className={styles.bannerItem}>
-              <Image
-                src={RankImgs[(index + 1) as keyof typeof RankImgs]}
-                alt={b.character_name}
-                quality={100}
-                priority={true}
-                className={styles.rank}
-              />
-              <span className={styles.points}>
-                {formatThousand(b.adjusted_net_points)}
-              </span>
-              <Image
-                src={
-                  BannerImgs[
-                    b.character_name.toLowerCase() as keyof typeof BannerImgs
-                  ]
-                }
-                alt={b.character_name}
-                quality={100}
-                priority={true}
-              />
-            </div>
-          ))}
+        {(() => {
+          const sorted = data
+            ?.sort((a, b) => b.adjusted_net_points - a.adjusted_net_points) ?? [];
+          const maxPoints = Math.max(
+            1,
+            ...sorted.map((i) => Number(i.adjusted_net_points) || 0)
+          );
+          return sorted.map((b, index) => {
+            const widthPct = Math.max(
+              8,
+              Math.round(((Number(b.adjusted_net_points) || 0) / maxPoints) * 100)
+            );
+            const scaleX = Math.max(
+              1,
+              Math.round(((Number(b.adjusted_net_points) || 0) / maxPoints) * 10)
+            );
+            const color = colors[index % colors.length];
+            const rankImg = RankImgs[(index + 1) as keyof typeof RankImgs];
+            const charImg =
+              BannerImgs[
+                b.character_name.toLowerCase() as keyof typeof BannerImgs
+              ];
+            return (
+              <div key={b.character_name} className="relative w-full my-2 flex items-stretch gap-3">
+                {/* Rank badge */}
+                <div className="flex-none self-stretch grid place-items-center">
+                  <Image src={rankImg} alt={`#${index + 1}`} quality={100} priority className="h-14 w-14 object-contain" />
+                </div>
+
+                {/* Character image strip */}
+                <div className="relative h-14 w-14 overflow-hidden rounded-md flex-none">
+                  <Image src={charImg} alt={b.character_name} fill sizes="56px" className="object-cover" />
+                </div>
+
+                {/* Progress bar with name */}
+                <div className="relative flex-1 h-14 rounded-md overflow-hidden bg-white/10">
+                  <div className={`h-full ${color}`} style={{ width: `${widthPct}%` }} />
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="px-4">
+                      <span className="text-white drop-shadow-[0_2px_0_rgba(0,0,0,0.6)] font-extrabold tracking-wide text-3xl select-none">
+                        {b.character_name.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="ml-auto pr-4">
+                      <span className="text-white/90 font-extrabold text-3xl select-none">
+                        {scaleX}x
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          });
+        })()}
       </div>
     </header>
   );

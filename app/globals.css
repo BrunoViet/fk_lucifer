@@ -53,6 +53,23 @@
   display: none;
 }
 
+/* Show scrollbar only on hover for elements that also use scrollbar-hide */
+.scrollbar-visible {
+  scrollbar-width: thin;
+}
+.scrollbar-visible::-webkit-scrollbar {
+  display: block;
+  width: 8px;
+  height: 8px;
+}
+.scrollbar-visible::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+}
+.scrollbar-visible::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 /* 移动端适配 */
 @media (max-width: 768px) {
   body {
