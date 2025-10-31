@@ -3,15 +3,15 @@
 -- =====================================================
 
 -- 1. GET CHARACTER POINTS FUNCTION (WITH BLIND BOX CALCULATION)
+-- Returns: character_name, adjusted_net_points, earn_points, refund_points
 DROP FUNCTION IF EXISTS get_character_points_adjusted();
 
 CREATE OR REPLACE FUNCTION get_character_points_adjusted()
 RETURNS TABLE (
     character_name TEXT,
-    total_points NUMERIC,
     adjusted_net_points NUMERIC,
-    user_count BIGINT,
-    total_spent NUMERIC
+    earn_points NUMERIC,
+    refund_points NUMERIC
 )
 AS $$
 DECLARE
@@ -20,6 +20,7 @@ BEGIN
     RETURN QUERY
     WITH line_item_calculations AS (
         -- Calculate base points for each line item
+        -- Positive quantity = earn points, negative quantity = refund points
         SELECT 
             o.email,
             li.product_id,
@@ -28,65 +29,76 @@ BEGIN
             li.current_quantity * (li.discounted_unit_price_after_all_discounts_set -> 'shopMoney' ->> 'amount')::NUMERIC as line_total,
             -- Points = 10% of spending
             (li.current_quantity * (li.discounted_unit_price_after_all_discounts_set -> 'shopMoney' ->> 'amount')::NUMERIC * 0.1) as points,
+            -- Separate earn and refund
+            CASE 
+                WHEN li.current_quantity > 0 THEN 
+                    (li.current_quantity * (li.discounted_unit_price_after_all_discounts_set -> 'shopMoney' ->> 'amount')::NUMERIC * 0.1)
+                ELSE 0
+            END as earn_points,
+            CASE 
+                WHEN li.current_quantity < 0 THEN 
+                    ABS(li.current_quantity * (li.discounted_unit_price_after_all_discounts_set -> 'shopMoney' ->> 'amount')::NUMERIC * 0.1)
+                ELSE 0
+            END as refund_points,
             pcm.character_name
         FROM line_items li
         JOIN orders o ON o.id = li.order_id
         LEFT JOIN product_character_mapping pcm ON pcm.product_id = li.product_id
-        WHERE li.current_quantity > 0
     ),
     character_points_calculated AS (
         -- Handle character-specific products
         SELECT 
-            lic.email,
             lic.character_name,
-            SUM(lic.points) as points,
-            SUM(lic.line_total) as amount_spent
+            SUM(lic.earn_points) as earn_points,
+            SUM(lic.refund_points) as refund_points
         FROM line_item_calculations lic
         WHERE lic.character_name IS NOT NULL 
           AND lic.character_name != 'all'
-        GROUP BY lic.email, lic.character_name
+        GROUP BY lic.character_name
 
         UNION ALL
 
         -- Handle blind box products (character_name = 'all')
         -- Divide points equally among all 6 characters
         SELECT 
-            lic.email,
             char.name as character_name,
-            SUM(lic.points / total_characters) as points,
-            SUM(lic.line_total / total_characters) as amount_spent
+            SUM(lic.earn_points / total_characters) as earn_points,
+            SUM(lic.refund_points / total_characters) as refund_points
         FROM line_item_calculations lic
         CROSS JOIN (
             VALUES ('mizi'), ('sua'), ('till'), ('ivan'), ('hyuna'), ('luka')
         ) AS char(name)
         WHERE lic.character_name = 'all'
-        GROUP BY lic.email, char.name
+        GROUP BY char.name
 
         UNION ALL
 
         -- Handle unmapped products (NULL character_name)
         -- Also divide equally among all 6 characters
         SELECT 
-            lic.email,
             char.name as character_name,
-            SUM(lic.points / total_characters) as points,
-            SUM(lic.line_total / total_characters) as amount_spent
+            SUM(lic.earn_points / total_characters) as earn_points,
+            SUM(lic.refund_points / total_characters) as refund_points
         FROM line_item_calculations lic
         CROSS JOIN (
             VALUES ('mizi'), ('sua'), ('till'), ('ivan'), ('hyuna'), ('luka')
         ) AS char(name)
         WHERE lic.character_name IS NULL
-        GROUP BY lic.email, char.name
+        GROUP BY char.name
+    ),
+    -- Ensure all 6 characters are present
+    all_characters AS (
+        VALUES ('mizi'), ('sua'), ('till'), ('ivan'), ('hyuna'), ('luka')
     )
-    -- Aggregate by character
+    -- Final aggregation
     SELECT 
-        cpc.character_name,
-        COALESCE(SUM(cpc.points), 0) AS total_points,
-        COALESCE(SUM(cpc.points), 0) AS adjusted_net_points,
-        COUNT(DISTINCT cpc.email) AS user_count,
-        COALESCE(SUM(cpc.amount_spent), 0) AS total_spent
-    FROM character_points_calculated cpc
-    GROUP BY cpc.character_name
+        ac.column1 as character_name,
+        COALESCE(SUM(cpc.earn_points), 0) - COALESCE(SUM(cpc.refund_points), 0) AS adjusted_net_points,
+        COALESCE(SUM(cpc.earn_points), 0) AS earn_points,
+        COALESCE(SUM(cpc.refund_points), 0) AS refund_points
+    FROM all_characters ac
+    LEFT JOIN character_points_calculated cpc ON cpc.character_name = ac.column1
+    GROUP BY ac.column1
     ORDER BY adjusted_net_points DESC;
 END;
 $$ LANGUAGE plpgsql;
