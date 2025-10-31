@@ -34,7 +34,7 @@ const RankImgs = {
 };
 
 export default function AniHeader() {
-  const { data, error, isLoading } = useCharacterPoints();
+  const { data, error, isLoading, isFetching } = useCharacterPoints();
   const colors = [
     "bg-[#c36a6a]",
     "bg-[#0b5586]",
@@ -93,8 +93,11 @@ export default function AniHeader() {
 
                 {/* Progress bar with overlayed character art */}
                 <div className="relative flex-1 h-14 rounded-md overflow-hidden bg-white/10">
-                  {/* colored fill */}
-                  <div className={`h-full ${color}`} style={{ width: `${widthPct}%` }} />
+                  {/* colored fill with smooth transition */}
+                  <div 
+                    className={`h-full ${color} transition-all duration-1000 ease-out`} 
+                    style={{ width: `${widthPct}%` }} 
+                  />
 
                   {/* character art overlay (faded) */}
                   <div
