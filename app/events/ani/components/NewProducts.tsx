@@ -213,18 +213,6 @@ export default function NewProducts({
           </div>
         )}
       </div>
-      <div className="w-full relative translate-x-1/4">
-        <Image
-          src="/images/ani/new_info.png"
-          alt="Faction Goods"
-          width={800}
-          height={200}
-          className="w-full block h-auto"
-        />
-        <div className="absolute inset-0 w-full h-full flex justify-start pl-20 max-sm:pl-8 pt-5 max-sm:pt-2 items-start text-4xl max-sm:text-xl font-bold">
-          Something
-        </div>
-      </div>
       <Image
         src="/images/ani/new_browse_btn.png"
         alt="Browse Button"

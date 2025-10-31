@@ -171,7 +171,7 @@ export const FAQ_ANI = [
   },
   {
     question: 'If I place multiple orders, can they be combined and the shipping fee refunded?',
-    answer: 'Yes, we support order consolidation during the campaign, and shipping fee differences will be refunded.'
+    answer: 'Yes, we do support combined shipping, but only after the event has ended.'
   }
 ]
 

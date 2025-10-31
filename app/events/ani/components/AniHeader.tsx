@@ -91,14 +91,32 @@ export default function AniHeader() {
                   <Image src={rankImg} alt={`#${index + 1}`} quality={100} priority className="h-14 w-14 object-contain" />
                 </div>
 
-                {/* Character image strip */}
-                <div className="relative h-14 w-14 overflow-hidden rounded-md flex-none">
-                  <Image src={charImg} alt={b.character_name} fill sizes="56px" className="object-cover" />
-                </div>
-
-                {/* Progress bar with name */}
+                {/* Progress bar with overlayed character art */}
                 <div className="relative flex-1 h-14 rounded-md overflow-hidden bg-white/10">
+                  {/* colored fill */}
                   <div className={`h-full ${color}`} style={{ width: `${widthPct}%` }} />
+
+                  {/* character art overlay (faded) */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      WebkitMaskImage:
+                        "linear-gradient(to right, rgba(0,0,0,1) 35%, rgba(0,0,0,0) 85%)",
+                      maskImage:
+                        "linear-gradient(to right, rgba(0,0,0,1) 35%, rgba(0,0,0,0) 85%)",
+                    }}
+                  >
+                    <Image
+                      src={charImg}
+                      alt={b.character_name}
+                      fill
+                      sizes="100vw"
+                      className="object-cover object-left opacity-30"
+                      priority
+                    />
+                  </div>
+
+                  {/* labels */}
                   <div className="absolute inset-0 flex items-center">
                     <div className="px-4">
                       <span className="text-white drop-shadow-[0_2px_0_rgba(0,0,0,0.6)] font-extrabold tracking-wide text-3xl select-none">

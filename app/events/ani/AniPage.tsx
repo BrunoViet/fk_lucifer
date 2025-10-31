@@ -54,8 +54,8 @@ export default function AniPage({
         <NewProducts onOpenCartDrawer={onOpenCartDrawer} />
         <ShopBySeries onOpenCartDrawer={onOpenCartDrawer} />
         <CheckOut />
-        <TermsSection />
         <FAQ faqData={FAQ_ANI} className="bg-transparent" />
+        <TermsSection />
       </div>
     </main>
   );

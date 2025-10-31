@@ -7,7 +7,7 @@ export const CheckOut = () => {
   const { checkoutUrl, status } = useCart();
   const canCheckout = checkoutUrl && status !== "updating";
   return (
-    <div className="w-full flex justify-center items-center pb-20">
+    <div className="w-full flex justify-center items-center">
       <Image
         src={CheckoutBtn}
         alt="Checkout Button"
