@@ -29,7 +29,8 @@ export default function ShopifyProviders({
             // 失败重试次数
             retry: 2,
             // 重试延迟
-            retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+            retryDelay: (attemptIndex) =>
+              Math.min(1000 * 2 ** attemptIndex, 30000),
           },
         },
       })

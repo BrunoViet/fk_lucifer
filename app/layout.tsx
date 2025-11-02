@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import ShopifyProviders from "./providers";
 import { MobileFrame } from "./components/MobileFrame";
-
+//This should be responsive, and we have more mobile users than desktop.
 // 使用 Inter 字体替代 Geist 以避免兼容性问题
 const inter = Inter({
   variable: "--font-inter",
