@@ -53,6 +53,7 @@
   display: none;
 }
 
+
 /* Show scrollbar only on hover for elements that also use scrollbar-hide */
 .scrollbar-visible {
   scrollbar-width: thin;

@@ -1,19 +1,13 @@
+"use client";
 import { cn, formatThousand } from "@/lib/utils";
 import Image from "next/image";
 import PointsBg from "@/public/images/ani/offers_bg.png";
 import PointsArrow from "@/public/images/ani/points_arrow.png";
 import Carousel, { CarouselRef } from "@/components/carousel";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useProducts } from "@/hooks/useProducts";
-import { Loader } from "lucide-react";
+import { Loader, ChevronDown, ChevronUp } from "lucide-react";
 import ImageWithViewDialog from "./ImageWithViewDialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
 import { AddToCartButton, ProductProvider } from "@shopify/hydrogen-react";
 
 const Goods = [
@@ -52,6 +46,7 @@ export default function OffersDiscounts({
 }: {
   onOpenCartDrawer: () => void;
 }) {
+  const [isExpanded, setIsExpanded] = useState(true);
   const carouselRef = useRef<CarouselRef>(null);
   const { products, loading, error } = useProducts(Goods);
 
@@ -66,7 +61,7 @@ export default function OffersDiscounts({
 
   return (
     <section className="w-full m-[2rem_0]">
-      <div className="w-full">
+      <div className="w-full" style={{ position: "relative" }}>
         <Image
           src="/images/ani/offers_title.png"
           alt="Faction Goods"
@@ -75,7 +70,20 @@ export default function OffersDiscounts({
           sizes="(max-width: 768px) 100vw, 500px"
           className="w-full block h-auto"
         />
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="absolute top-1/2 -translate-y-1/2 left-4 z-20 bg-black/70 hover:bg-black/90 text-white hover:text-gray-300 transition-all duration-300 flex items-center justify-center p-3 md:p-4 rounded-full"
+          aria-label={isExpanded ? "Collapse section" : "Expand section"}
+        >
+          {isExpanded ? (
+            <ChevronUp className="w-10 h-10 md:w-12 md:h-12" />
+          ) : (
+            <ChevronDown className="w-10 h-10 md:w-12 md:h-12" />
+          )}
+        </button>
       </div>
+      {isExpanded && (
+      <>
       <div className="w-full relative flex justify-center items-center">
         <Image
           src={PointsArrow}
@@ -109,7 +117,7 @@ export default function OffersDiscounts({
           </div>
         )}
         {!loading && !error && (
-          <div className="w-[70%] h-full flex items-center absolute inset-0 left-[15%] py-20 max-sm:py-6">
+          <div className="h-full flex items-center absolute inset-0 left-0 right-0 py-20 max-sm:py-6 pl-16 pr-16 max-sm:pl-12 max-sm:pr-12">
             <Carousel
               options={{ loop: true }}
               ref={carouselRef}
@@ -139,70 +147,20 @@ export default function OffersDiscounts({
                             alt={firstVariant.image.altText || ""}
                             className="w-full h-[60%] object-cover aspect-square"
                           />
-                          <div className="text-center text-xl max-sm:text-[10px]">
+                          <div className="text-center text-2xl md:text-3xl max-sm:text-sm font-bold text-white bg-pink-500 px-4 py-2 rounded-lg shadow-lg">
                             $ {product.priceRange.minVariantPrice.amount}
                           </div>
-                          <Drawer direction="bottom">
-                            <DrawerTrigger asChild>
-                              <div className="text-center text-xl max-sm:text-[10px] bg-black p-2 max-sm:p-0 cursor-pointer hover:bg-gray-800 transition-colors">
-                                ADD TO CART
-                              </div>
-                            </DrawerTrigger>
-                            <DrawerContent className="h-1/2 mx-auto bg-gray-900 text-white border-t-gray-900">
-                              <DrawerHeader>
-                                <DrawerTitle className="text-white">
-                                  {product.title}
-                                </DrawerTitle>
-                              </DrawerHeader>
-                              <div className="px-2 overflow-auto space-y-4">
-                                {product.variants.nodes.map((variant) => (
-                                  <div
-                                    key={variant.id}
-                                    className="border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors bg-gray-850"
-                                  >
-                                    <div className="flex items-center space-x-4">
-                                      {/* 变体图片 */}
-                                      <div className="flex-shrink-0">
-                                        <ImageWithViewDialog
-                                          src={variant.image.url}
-                                          alt={variant.image.altText || ""}
-                                          className="w-16 h-16 object-cover rounded-lg cursor-pointer border border-gray-600"
-                                        />
-                                      </div>
-
-                                      {/* 变体信息 */}
-                                      <div className="flex-1">
-                                        <h3 className="font-medium text-gray-100">
-                                          {variant.selectedOptions
-                                            .map((option) => option.value)
-                                            .join(" / ")}
-                                        </h3>
-                                        <p className="text-lg font-bold text-white mt-1">
-                                          ${variant.price.amount}
-                                        </p>
-                                      </div>
-
-                                      {/* 添加到购物车按钮 */}
-                                      <div className="flex-shrink-0">
-                                        <ProductProvider data={product}>
-                                          <AddToCartButton
-                                            variantId={variant.id}
-                                            className="bg-[#d11c45] hover:bg-[#b91c3c] text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg"
-                                            onClick={() => {
-                                              // 添加到购物车成功后打开购物车
-                                              onOpenCartDrawer();
-                                            }}
-                                          >
-                                            Add to Cart
-                                          </AddToCartButton>
-                                        </ProductProvider>
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </DrawerContent>
-                          </Drawer>
+                          <ProductProvider data={product}>
+                            <AddToCartButton
+                              variantId={firstVariant.id}
+                              className="text-center text-lg md:text-xl max-sm:text-sm font-bold text-white bg-[#d11c45] hover:bg-[#b91c3c] px-4 py-3 rounded-lg cursor-pointer transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 w-full"
+                              onClick={() => {
+                                onOpenCartDrawer();
+                              }}
+                            >
+                              ADD TO CART
+                            </AddToCartButton>
+                          </ProductProvider>
                         </div>
                       );
                     })}
@@ -213,6 +171,8 @@ export default function OffersDiscounts({
           </div>
         )}
       </div>
+      </>
+      )}
     </section>
   );
 }

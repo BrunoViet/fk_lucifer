@@ -1,11 +1,19 @@
+"use client";
 import Image from "next/image";
 import styles from "@/app/events/ani/styles.module.css";
+import { useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import CurrentPoints from "./CurrentPoints";
 
 export default function RulesSection() {
+  const [isExpanded, setIsExpanded] = useState(true);
+
   return (
-    <section className={`${styles.rulesSection} relative`}>
-      {/* Header */}
-      <div className="w-full mb-6">
+    <>
+      <CurrentPoints />
+      <section className={`${styles.rulesSection} relative`}>
+        {/* Header */}
+      <div className="w-full mb-6" style={{ position: "relative" }}>
         <Image
           src="/images/ani/Asset 12.png"
           alt="Rules & Information"
@@ -14,10 +22,21 @@ export default function RulesSection() {
           priority
           className="w-full h-auto object-contain"
         />
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="absolute top-1/2 -translate-y-1/2 left-4 z-20 bg-black/70 hover:bg-black/90 text-white hover:text-gray-300 transition-all duration-300 flex items-center justify-center p-3 md:p-4 rounded-full"
+          aria-label={isExpanded ? "Collapse section" : "Expand section"}
+        >
+          {isExpanded ? (
+            <ChevronUp className="w-10 h-10 md:w-12 md:h-12" />
+          ) : (
+            <ChevronDown className="w-10 h-10 md:w-12 md:h-12" />
+          )}
+        </button>
       </div>
 
-      {/* Panel Background */}
-      <div className="relative">
+      {isExpanded && (
+        <div className="relative">
         <Image
           src="/images/ani/Asset 13.png"
           alt="Rules Panel"
@@ -100,6 +119,8 @@ export default function RulesSection() {
           </div>
         </div>
       </div>
-    </section>
+      )}
+      </section>
+    </>
   );
 }

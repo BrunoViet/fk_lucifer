@@ -87,47 +87,49 @@ export default function AniHeader() {
             return (
               <div key={b.character_name} className="relative w-full my-2 flex items-stretch gap-3">
                 {/* Rank badge */}
-                <div className="flex-none self-stretch grid place-items-center">
-                  <Image src={rankImg} alt={`#${index + 1}`} quality={100} priority className="h-14 w-14 object-contain" />
+                <div className="flex-none self-stretch grid place-items-center z-10">
+                  <Image src={rankImg} alt={`#${index + 1}`} quality={100} priority className="h-28 w-28 md:h-32 md:w-32 object-contain" />
                 </div>
 
-                {/* Progress bar with overlayed character art */}
-                <div className="relative flex-1 h-14 rounded-md overflow-hidden bg-white/10">
-                  {/* colored fill with smooth transition */}
-                  <div 
-                    className={`h-full ${color} transition-all duration-1000 ease-out`} 
-                    style={{ width: `${widthPct}%` }} 
-                  />
-
-                  {/* character art overlay (faded) */}
-                  <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      WebkitMaskImage:
-                        "linear-gradient(to right, rgba(0,0,0,1) 35%, rgba(0,0,0,0) 85%)",
-                      maskImage:
-                        "linear-gradient(to right, rgba(0,0,0,1) 35%, rgba(0,0,0,0) 85%)",
-                    }}
-                  >
+                {/* Progress bar - full width, character image always visible */}
+                <div className="relative flex-1 h-28 md:h-32 rounded-md overflow-hidden">
+                  {/* Character image - full bar, always visible */}
+                  <div className="absolute inset-0 pointer-events-none opacity-25">
                     <Image
                       src={charImg}
                       alt={b.character_name}
                       fill
                       sizes="100vw"
-                      className="object-cover object-left opacity-30"
+                      className="object-cover object-left"
                       priority
+                      style={{
+                        objectPosition: "left center",
+                      }}
                     />
                   </div>
 
-                  {/* labels */}
-                  <div className="absolute inset-0 flex items-center">
+                  {/* Colored overlay for progress - prominent, shows progress width */}
+                  {/* When progress reaches max (100%), reduce opacity to highlight character image */}
+                  <div 
+                    className={`h-full ${color} transition-all duration-1000 ease-out`}
+                    style={{ 
+                      width: `${widthPct}%`,
+                      opacity: widthPct >= 100 ? 0.4 : 0.85
+                    }}
+                  />
+
+                  {/* Lighter overlay for better text readability - reduced opacity for clearer image */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-transparent pointer-events-none" />
+
+                  {/* Labels - text overlaying the bar */}
+                  <div className="absolute inset-0 flex items-center z-10">
                     <div className="px-4">
-                      <span className="text-white drop-shadow-[0_2px_0_rgba(0,0,0,0.6)] font-extrabold tracking-wide text-3xl select-none">
+                      <span className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8),0_0_8px_rgba(0,0,0,0.6)] font-extrabold tracking-wide text-3xl select-none">
                         {b.character_name.toUpperCase()}
                       </span>
                     </div>
                     <div className="ml-auto pr-4">
-                      <span className="text-white/90 font-extrabold text-3xl select-none">
+                      <span className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8),0_0_8px_rgba(0,0,0,0.6)] font-extrabold text-3xl select-none">
                         {scaleX}x
                       </span>
                     </div>

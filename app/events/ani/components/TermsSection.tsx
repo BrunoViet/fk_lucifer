@@ -1,20 +1,14 @@
+"use client";
 import styles from "@/app/events/ani/styles.module.css";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { X } from "lucide-react";
 
 export default function TermsSection() {
   const [showModal, setShowModal] = useState(false);
-  const [showScrollBar, setShowScrollBar] = useState(false);
-  const hideTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     document.body.style.overflow = showModal ? "hidden" : "auto";
   }, [showModal]);
-
-  useEffect(() => {
-    return () => {
-      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
-    };
-  }, []);
 
   return (
     <section className="px-4 md:px-6">
@@ -46,16 +40,25 @@ export default function TermsSection() {
           onClick={() => setShowModal(false)}
         >
           <div
-            className={`bg-black text-white rounded-2xl max-w-2xl w-[90%] max-h-[80vh] overflow-y-auto p-6 shadow-2xl border border-white/20 ring-1 ring-white/10 ${showScrollBar ? "scrollbar-visible" : "scrollbar-hide"}`}
+            className="bg-black text-white rounded-2xl max-w-2xl w-[90%] max-h-[80vh] flex flex-col shadow-2xl border border-white/20 ring-1 ring-white/10"
             onClick={(e) => e.stopPropagation()}
-            onScroll={() => {
-              setShowScrollBar(true);
-              if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
-              hideTimerRef.current = setTimeout(() => setShowScrollBar(false), 800);
-            }}
           >
-            <h1 className="text-2xl md:text-3xl font-bold mb-5 text-center">Terms & Conditions</h1>
-            <div className="space-y-4 text-gray-800 leading-relaxed text-justify">
+            {/* Fixed Header */}
+            <div className="relative p-6 border-b border-white/20">
+              <h1 className="text-2xl md:text-3xl font-bold text-center pr-8">Terms & Conditions</h1>
+              {/* Close X Button */}
+              <button
+                onClick={() => setShowModal(false)}
+                className="absolute top-7 right-4 text-white hover:text-gray-300 transition-colors p-1 rounded-full hover:bg-white/10"
+                aria-label="Close modal"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-6 scrollbar-hide border-b border-white/20">
+              <div className="space-y-4 text-gray-800 leading-relaxed text-justify">
               <h4 className="text-lg font-semibold text-center text-white">Event Overview</h4>
               <p className="text-white">
                 This event is organized by Harumio and applies to purchases made
@@ -158,12 +161,14 @@ export default function TermsSection() {
               <h4 className="text-lg font-semibold text-center text-white">6. Contact</h4>
               <p className="text-white">
                 For inquiries related to this event or your reward points,
-                please contact our Customer Support via our website’s official
+                please contact our Customer Support via our website's official
                 contact form.
               </p>
+              </div>
             </div>
 
-            <div className="flex justify-end mt-6">
+            {/* Fixed Close Button */}
+            <div className="flex justify-end p-6 border-t border-white/20">
               <button
                 className="px-5 py-2 bg-white text-black rounded-lg hover:bg-gray-800 transition-all"
                 onClick={() => setShowModal(false)}

@@ -17,7 +17,7 @@ function App() {
   const { totalQuantity } = useCart();
 
   return (
-    <div className="relative h-full bg-[#0a0a0a] flex justify-center items-center">
+    <div className="relative min-h-screen h-auto bg-[#0a0a0a] flex justify-center items-start overflow-hidden">
       {/* 购物车按钮 */}
       <button
         onClick={openDrawer}

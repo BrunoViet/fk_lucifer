@@ -1,3 +1,4 @@
+"use client";
 import { cn, formatThousand } from "@/lib/utils";
 import Image from "next/image";
 import AniPlushBg from "@/public/images/ani/shop_aniplus.png";
@@ -12,16 +13,10 @@ import NewBg from "@/public/images/ani/shop_new.png";
 import AetBg from "@/public/images/ani/shop_aet.png";
 import PointsArrow from "@/public/images/ani/points_arrow.png";
 import Carousel, { CarouselRef } from "@/components/carousel";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { useProducts } from "@/hooks/useProducts";
 import ImageWithViewDialog from "./ImageWithViewDialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
 import { ProductProvider, AddToCartButton } from "@shopify/hydrogen-react";
 
 const testData = [
@@ -112,9 +107,11 @@ export default function ShopBySeries({
 }: {
   onOpenCartDrawer: () => void;
 }) {
+  const [isExpanded, setIsExpanded] = useState(true);
+
   return (
     <section className="w-full m-[2rem_0]">
-      <div className="w-full">
+      <div className="w-full" style={{ position: "relative" }}>
         <Image
           src="/images/ani/shop_title.png"
           alt="Faction Goods"
@@ -123,7 +120,20 @@ export default function ShopBySeries({
           sizes="(max-width: 768px) 100vw, 500px"
           className="w-full block h-auto"
         />
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="absolute top-1/2 -translate-y-1/2 left-4 z-20 bg-black/70 hover:bg-black/90 text-white hover:text-gray-300 transition-all duration-300 flex items-center justify-center p-3 md:p-4 rounded-full"
+          aria-label={isExpanded ? "Collapse section" : "Expand section"}
+        >
+          {isExpanded ? (
+            <ChevronUp className="w-10 h-10 md:w-12 md:h-12" />
+          ) : (
+            <ChevronDown className="w-10 h-10 md:w-12 md:h-12" />
+          )}
+        </button>
       </div>
+      {isExpanded && (
+      <>
       {Goods.map((goods, index) => (
         <SeriesItem
           key={index}
@@ -131,6 +141,8 @@ export default function ShopBySeries({
           onOpenCartDrawer={onOpenCartDrawer}
         />
       ))}
+      </>
+      )}
     </section>
   );
 }
@@ -188,11 +200,11 @@ const SeriesItem = ({
       />
       <div
         className={cn(
-          "w-[87.5%] absolute inset-0 flex justify-center items-center",
+          "absolute inset-0 flex justify-center items-center left-0 right-0",
           alignLeft && "ml-[12.5%]"
         )}
       >
-        <div className="w-[80%] h-[72%] flex items-center mt-[8%]">
+        <div className="h-[72%] flex items-center mt-[8%] pl-16 pr-16 max-sm:pl-12 max-sm:pr-12 w-full">
           <Carousel
             options={{ loop: true }}
             ref={carouselRef}
@@ -222,73 +234,20 @@ const SeriesItem = ({
                           alt={firstVariant.image.altText || ""}
                           className="w-full h-[12vw] max-h-[205px] object-cover aspect-square"
                         />
-                        <div className="text-center lg:text-xl md:text-[14px] max-sm:text-[10px]">
+                        <div className="text-center text-2xl md:text-3xl max-sm:text-sm font-bold text-white bg-pink-500 px-4 py-2 rounded-lg shadow-lg">
                           $ {product.priceRange.minVariantPrice.amount}
                         </div>
-                        {/* <div className="text-center lg:text-xl md:text-[14px] max-sm:text-[10px] bg-black cursor-pointer hover:bg-gray-800 lg:p-2 transition-colors">
-                          ADD TO CART
-                        </div> */}
-                        <Drawer direction="bottom">
-                          <DrawerTrigger asChild>
-                            <div className="text-center lg:text-xl md:text-[14px] max-sm:text-[10px] bg-black cursor-pointer hover:bg-gray-800 lg:p-2 transition-colors">
-                              ADD TO CART
-                            </div>
-                          </DrawerTrigger>
-                          <DrawerContent className="h-1/2 mx-auto bg-gray-900 text-white border-t-gray-900">
-                            <DrawerHeader>
-                              <DrawerTitle className="text-white">
-                                {product.title}
-                              </DrawerTitle>
-                            </DrawerHeader>
-                            <div className="px-2 overflow-auto space-y-4">
-                              {product.variants.nodes.map((variant) => (
-                                <div
-                                  key={variant.id}
-                                  className="border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors bg-gray-850"
-                                >
-                                  <div className="flex items-center space-x-4">
-                                    {/* 变体图片 */}
-                                    <div className="flex-shrink-0">
-                                      <ImageWithViewDialog
-                                        src={variant.image.url}
-                                        alt={variant.image.altText || ""}
-                                        className="w-16 h-16 object-cover rounded-lg cursor-pointer border border-gray-600"
-                                      />
-                                    </div>
-
-                                    {/* 变体信息 */}
-                                    <div className="flex-1">
-                                      <h3 className="font-medium text-gray-100">
-                                        {variant.selectedOptions
-                                          .map((option) => option.value)
-                                          .join(" / ")}
-                                      </h3>
-                                      <p className="text-lg font-bold text-white mt-1">
-                                        ${variant.price.amount}
-                                      </p>
-                                    </div>
-
-                                    {/* 添加到购物车按钮 */}
-                                    <div className="flex-shrink-0">
-                                      <ProductProvider data={product}>
-                                        <AddToCartButton
-                                          variantId={variant.id}
-                                          className="bg-[#d11c45] hover:bg-[#b91c3c] text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-lg"
-                                          onClick={() => {
-                                            // 添加到购物车成功后打开购物车
-                                            onOpenCartDrawer();
-                                          }}
-                                        >
-                                          Add to Cart
-                                        </AddToCartButton>
-                                      </ProductProvider>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </DrawerContent>
-                        </Drawer>
+                        <ProductProvider data={product}>
+                          <AddToCartButton
+                            variantId={firstVariant.id}
+                            className="text-center text-lg md:text-xl max-sm:text-sm font-bold text-white bg-[#d11c45] hover:bg-[#b91c3c] px-4 py-3 rounded-lg cursor-pointer transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 w-full"
+                            onClick={() => {
+                              onOpenCartDrawer();
+                            }}
+                          >
+                            ADD TO CART
+                          </AddToCartButton>
+                        </ProductProvider>
                       </div>
                     );
                   })}

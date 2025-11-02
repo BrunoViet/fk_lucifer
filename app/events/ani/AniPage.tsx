@@ -49,7 +49,7 @@ export default function AniPage({
         <Comments />
         <RulesSection />
         <FactionGoods onOpenCartDrawer={onOpenCartDrawer} />
-        <PointsRewardShop />
+        <PointsRewardShop onOpenCartDrawer={onOpenCartDrawer} />
         <OffersDiscounts onOpenCartDrawer={onOpenCartDrawer} />
         <NewProducts onOpenCartDrawer={onOpenCartDrawer} />
         <ShopBySeries onOpenCartDrawer={onOpenCartDrawer} />
