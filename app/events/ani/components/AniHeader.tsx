@@ -1,11 +1,5 @@
 import styles from "@/app/events/ani/styles.module.css";
 import Image from "next/image";
-import Till from "@/public/images/ani/till.png";
-import Ivan from "@/public/images/ani/ivan.png";
-import Sua from "@/public/images/ani/sua.png";
-import Mizi from "@/public/images/ani/mizi.png";
-import Hyuna from "@/public/images/ani/hyuna.png";
-import Luka from "@/public/images/ani/luka.png";
 import Rank1 from "@/public/images/ani/rank1.png";
 import Rank2 from "@/public/images/ani/rank2.png";
 import Rank3 from "@/public/images/ani/rank3.png";
@@ -15,14 +9,8 @@ import Rank6 from "@/public/images/ani/rank6.png";
 import { formatThousand } from "@/lib/utils";
 import { useCharacterPoints } from "@/hooks/query/useCharacterPoints";
 
-const BannerImgs = {
-  till: Till,
-  ivan: Ivan,
-  sua: Sua,
-  mizi: Mizi,
-  hyuna: Hyuna,
-  luka: Luka,
-};
+// Character images will be resolved dynamically from public folder with pattern `${name}_new.png`.
+const getCharacterImgPath = (name: string) => `/images/ani/${name.toLowerCase()}_new.png`;
 
 const RankImgs = {
   1: Rank1,
@@ -80,56 +68,58 @@ export default function AniHeader() {
             );
             const color = colors[index % colors.length];
             const rankImg = RankImgs[(index + 1) as keyof typeof RankImgs];
-            const charImg =
-              BannerImgs[
-                b.character_name.toLowerCase() as keyof typeof BannerImgs
-              ];
+            const charNewPath = getCharacterImgPath(b.character_name);
             return (
-              <div key={b.character_name} className="relative w-full my-2 flex items-stretch gap-3">
-                {/* Rank badge */}
-                <div className="flex-none self-stretch grid place-items-center z-10">
-                  <Image src={rankImg} alt={`#${index + 1}`} quality={100} priority className="h-28 w-28 md:h-32 md:w-32 object-contain" />
+              <div key={b.character_name} className="relative w-full my-3">
+
+                {/* Rank badge as separate overlay: half inside, half outside on the left */}
+                <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 md:w-16 md:h-16 z-30">
+                  <Image src={rankImg} alt={`#${index + 1}`} fill sizes="64px" className="object-contain" priority />
                 </div>
 
-                {/* Progress bar - full width, character image always visible */}
-                <div className="relative flex-1 h-28 md:h-32 rounded-md overflow-hidden">
-                  {/* Character image - full bar, always visible */}
-                  <div className="absolute inset-0 pointer-events-none opacity-25">
-                    <Image
-                      src={charImg}
-                      alt={b.character_name}
-                      fill
-                      sizes="100vw"
-                      className="object-cover object-left"
-                      priority
-                      style={{
-                        objectPosition: "left center",
-                      }}
-                    />
+                {/* Progress bar - full width, with two overlays from the same image */}
+                <div className="relative h-28 md:h-32 rounded-md overflow-hidden">
+                  {/* Background faded image just behind the left foreground image */}
+                  <div className="absolute top-0 bottom-0 w-[28%] md:w-[24%] pointer-events-none opacity-30 z-20 left-[28%] md:left-[24%]">
+                    <Image src={charNewPath} alt={b.character_name} fill sizes="25vw" className="object-cover object-left" priority style={{ objectPosition: "left 35% center" }} />
                   </div>
 
                   {/* Colored overlay for progress - prominent, shows progress width */}
                   {/* When progress reaches max (100%), reduce opacity to highlight character image */}
-                  <div 
-                    className={`h-full ${color} transition-all duration-1000 ease-out`}
-                    style={{ 
+                  <div
+                    className={`relative z-10 h-full ${color} transition-all duration-1000 ease-out saturate-150 brightness-110`}
+                    style={{
                       width: `${widthPct}%`,
-                      opacity: widthPct >= 100 ? 0.4 : 0.85
+                      opacity: widthPct >= 100 ? 0.7 : 1
                     }}
                   />
 
-                  {/* Lighter overlay for better text readability - reduced opacity for clearer image */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-transparent pointer-events-none" />
+                  {/* Lighter overlay for better text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-transparent pointer-events-none" />
+
+                  {/* Foreground crisp image anchored to the left, overlaying the bar */}
+                  <div
+                    className="absolute left-0 top-0 bottom-0 w-[28%] md:w-[24%] pointer-events-none z-30"
+                    style={{
+                      WebkitMaskImage:
+                        "linear-gradient(to right, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)",
+                      maskImage:
+                        "linear-gradient(to right, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)",
+                    }}
+                  >
+                    <Image src={charNewPath} alt={b.character_name} fill sizes="25vw" className="object-cover object-left" priority style={{ objectPosition: "left 35% center" }} />
+                  </div>
 
                   {/* Labels - text overlaying the bar */}
-                  <div className="absolute inset-0 flex items-center z-10">
-                    <div className="px-4">
-                      <span className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8),0_0_8px_rgba(0,0,0,0.6)] font-extrabold tracking-wide text-3xl select-none">
+                  <div className="absolute inset-0 flex items-center z-40">
+                    {/* Name sits over the left image with a small gap from the rank badge */}
+                    <div className="pl-12 md:pl-16">
+                      <span className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8),0_0_8px_rgba(0,0,0,0.6)] font-extrabold tracking-wide text-3xl md:text-4xl select-none">
                         {b.character_name.toUpperCase()}
                       </span>
                     </div>
                     <div className="ml-auto pr-4">
-                      <span className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8),0_0_8px_rgba(0,0,0,0.6)] font-extrabold text-3xl select-none">
+                      <span className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8),0_0_8px_rgba(0,0,0,0.6)] font-extrabold text-3xl md:text-4xl select-none">
                         {scaleX}x
                       </span>
                     </div>
