@@ -69,6 +69,14 @@ export default function AniHeader() {
             const color = colors[index % colors.length];
             const rankImg = RankImgs[(index + 1) as keyof typeof RankImgs];
             const charNewPath = getCharacterImgPath(b.character_name);
+            const LEFT_SECTION_PCT = 36; // reserved left area for portrait + name
+            // Calculate progress width for the right section only (excluding left portrait area)
+            const rightSectionPct = 100 - LEFT_SECTION_PCT;
+            // Use discrete scale (1x..10x) to map to right section width so 1x,2x khác nhau rõ ràng
+            const progressBarWidthPct = (scaleX / 10) * rightSectionPct;
+            // Position multiplier at the end of progress bar (starting from LEFT_SECTION_PCT)
+            const progressBarEndPct = LEFT_SECTION_PCT + progressBarWidthPct;
+            const multiplierLeftPct = Math.max(progressBarEndPct, LEFT_SECTION_PCT + 6);
             return (
               <div key={b.character_name} className="relative w-full my-3">
 
@@ -79,18 +87,41 @@ export default function AniHeader() {
 
                 {/* Progress bar - full width, with two overlays from the same image */}
                 <div className="relative h-28 md:h-32 rounded-md overflow-hidden">
+                  {/* Left section background - same color as progress bar */}
+                  <div
+                    className={`absolute top-0 bottom-0 z-5 ${color} saturate-150 brightness-110 transition-all duration-1000 ease-out`}
+                    style={{ 
+                      width: `${LEFT_SECTION_PCT}%`, 
+                      opacity: widthPct >= 100 ? 0.7 : 1
+                    }}
+                  />
                   {/* Background faded image just behind the left foreground image */}
-                  <div className="absolute top-0 bottom-0 w-[28%] md:w-[24%] pointer-events-none opacity-30 z-20 left-[28%] md:left-[24%]">
+                  <div className="absolute top-0 bottom-0 w-[28%] md:w-[24%] pointer-events-none opacity-30 z-20 left-[14%] md:left-[11%]">
                     <Image src={charNewPath} alt={b.character_name} fill sizes="25vw" className="object-cover object-left" priority style={{ objectPosition: "left 35% center" }} />
                   </div>
 
-                  {/* Colored overlay for progress - prominent, shows progress width */}
-                  {/* When progress reaches max (100%), reduce opacity to highlight character image */}
+                  {/* Right section background */}
                   <div
-                    className={`relative z-10 h-full ${color} transition-all duration-1000 ease-out saturate-150 brightness-110`}
+                    className="absolute top-0 bottom-0 right-0 bg-white/5 z-5"
+                    style={{ left: `${LEFT_SECTION_PCT}%` }}
+                  />
+                  {/* Colored overlay for progress - starts from right of portrait area */}
+                  <div
+                    className={`absolute left-0 top-0 bottom-0 z-10 ${color} transition-all duration-1000 ease-out saturate-150 brightness-110`}
                     style={{
-                      width: `${widthPct}%`,
+                      left: `${LEFT_SECTION_PCT}%`,
+                      width: `${progressBarWidthPct}%`,
                       opacity: widthPct >= 100 ? 0.7 : 1
+                    }}
+                  />
+
+                  {/* Horizontal gradient overlay across the middle of the progress bar */}
+                  <div
+                    className="absolute top-0 bottom-0 z-20 pointer-events-none"
+                    style={{
+                      left: `${LEFT_SECTION_PCT}%`,
+                      width: `${progressBarWidthPct}%`,
+                      background: "linear-gradient(to right, rgba(255,255,255,0.0) 0%, rgba(255,255,255,0.2) 20%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.2) 80%, rgba(255,255,255,0.0) 100%)"
                     }}
                   />
 
@@ -101,6 +132,7 @@ export default function AniHeader() {
                   <div
                     className="absolute left-0 top-0 bottom-0 w-[28%] md:w-[24%] pointer-events-none z-30"
                     style={{
+                      left: b.character_name.toLowerCase() === "mizi" || b.character_name.toLowerCase() === "hyuna" ? "40px" : 0,
                       WebkitMaskImage:
                         "linear-gradient(to right, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%)",
                       maskImage:
@@ -114,12 +146,16 @@ export default function AniHeader() {
                   <div className="absolute inset-0 flex items-center z-40">
                     {/* Name sits over the left image with a small gap from the rank badge */}
                     <div className="pl-12 md:pl-16">
-                      <span className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8),0_0_8px_rgba(0,0,0,0.6)] font-extrabold tracking-wide text-3xl md:text-4xl select-none">
+                      <span className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8),0_0_8px_rgba(0,0,0,0.6)] font-extrabold tracking-wide text-4xl md:text-5xl lg:text-6xl select-none">
                         {b.character_name.toUpperCase()}
                       </span>
                     </div>
-                    <div className="ml-auto pr-4">
-                      <span className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8),0_0_8px_rgba(0,0,0,0.6)] font-extrabold text-3xl md:text-4xl select-none">
+                    {/* Multiplier pinned to the right edge of the current bar fill */}
+                    <div
+                      className="absolute top-0 bottom-0 z-50 flex items-center"
+                      style={{ left: `${multiplierLeftPct}%`, transform: "translateX(-100%)" }}
+                    >
+                      <span className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8),0_0_8px_rgba(0,0,0,0.6)] font-extrabold text-4xl md:text-5xl lg:text-6xl select-none leading-none">
                         {scaleX}x
                       </span>
                     </div>
